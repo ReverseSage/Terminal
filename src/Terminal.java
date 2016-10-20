@@ -43,7 +43,7 @@ public class CLI {
 				System.out.print(validCommands[i]  + ": " + Description[i] + "\n");
 			}
 		}
-	private static void arg() { // to be continued .. not important anyway bardo :D
+	private static void args() { // to be continued .. not important anyway bardo :D
 		System.out.println("\nls()\npwd()\narg()\ndate()\nmore()\nless()\nhelp()\nclear()\n"
 				+"cp(String newdirectory)\n" + "cat( String directory )\n" + "cd( String directory )\n"
 				+"mv(String directory)\n" + "rm( String filename )\n"+"mkdir( String newdirectory )"
@@ -52,7 +52,21 @@ public class CLI {
 	private static void pwd() {
 		System.out.println(currentPath.getAbsolutePath());
 	}
+	private static void clear() {
+		for (int i = 0; i < 60; i++) {
+			System.out.print("\n");
+		}
+	}
+	
+	private static void ls() {
+		File[] paths = currentPath.listFiles();
+		for (int i = 0; i < paths.length; i++) {
+			 System.out.println(paths[i].getName());
+		}
+		
+	}
 	public static void main(String[] args) {	
 		currentPath = new File(System.getProperty("user.dir")); // set the root (initial path to be in wherever the user project path
-	}	
+	}
+		
 }
