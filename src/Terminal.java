@@ -1,9 +1,15 @@
+import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Scanner;
 
 public class CLI {
 
 	/**
 	 * @param args
 	 */
+	private static File currentPath;
 	private static String[] validCommands = { "pwd", "ls", "cd", "cp", "mv", "rm", "rmdir", "mkdir", "cat", "more",
 			"date", "clear", "help", "args" };
 	
@@ -37,7 +43,16 @@ public class CLI {
 				System.out.print(validCommands[i]  + ": " + Description[i] + "\n");
 			}
 		}
+	private static void arg() { // to be continued .. not important anyway bardo :D
+		System.out.println("\nls()\npwd()\narg()\ndate()\nmore()\nless()\nhelp()\nclear()\n"
+				+"cp(String newdirectory)\n" + "cat( String directory )\n" + "cd( String directory )\n"
+				+"mv(String directory)\n" + "rm( String filename )\n"+"mkdir( String newdirectory )"
+				+"\nrmdir( String directory )\n");
 	}
-	public static void main(String[] args) {		
+	private static void pwd() {
+		System.out.println(currentPath.getAbsolutePath());
+	}
+	public static void main(String[] args) {	
+		currentPath = new File(System.getProperty("user.dir")); // set the root (initial path to be in wherever the user project path
 	}	
 }
