@@ -68,16 +68,29 @@ public class CLI {
 
 	}
 
-	private static void cd(String path) {
-		System.setProperty("user.dir", path);
+	private static void cd (String path) {
+		// default directory will be sent as parameter if cd only entered bye the user, to be checked in main.
+
+		if ( new File(path).isDirectory() )
+		{
+			System.setProperty("user.dir", path);
+		}
+		else
+		{
+			System.out.println("Invalid Directory");
+		}
 	}
+	
+	private static void cp (){
+		
+		
+	}
+	
+	
+	
 
 	public static void main(String[] args) {
-		System.out.println(defaultDirectory);
-		pwd();
-		cd("E:/");
-		pwd();
-		ls();
+		
 
 	}
 
