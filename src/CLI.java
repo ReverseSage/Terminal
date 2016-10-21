@@ -1,13 +1,22 @@
+
+import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Scanner;
 
 public class CLI {
 
 	/**
 	 * @param args
 	 */
+	static Scanner cin = new Scanner(System.in);
 	private static String[] validCommands = { "pwd", "ls", "cd", "cp", "mv", "rm", "rmdir", "mkdir", "cat", "more",
 			"date", "clear", "help", "args" };
 	private static final String defaultDirectory = System.getProperty("user.dir");
@@ -114,6 +123,63 @@ public class CLI {
 		}
 
 	}
+	private static void cp(ArrayList<String> args) {
+		if (args.size() < 2) {
+			System.out.println("to few arguments");
+			return;
+		}
+		String destination = args.get(args.size() - 1);
+		File destinationFile = null;
+		if (args.size() == 2) {
+			String source = args.get(0);
+			File sourceFile = new File(source);
+			if (!sourceFile.isFile()) {
+				sourceFile = new File(System.getProperty("user.dir") + '/' + source);
+			}
+			if (!sourceFile.isFile()) {
+				System.out.println("Source does not exists");
+				return;
+			}
+
+			int idx = destination.indexOf("/");
+
+			if (idx == -1) // destination will be on the current director
+				destinationFile = new File(System.getProperty("user.dir") + '/' + destination);
+			try {
+				if (destinationFile.exists()){
+					System.out.println("Destination file already exists - overwrite?");
+					String choice = cin.next();
+					if (!(choice == "Y" || choice == "YES" || choice == "Yes")) {
+						return;
+					}
+				}
+				Files.copy(sourceFile.toPath(), destinationFile.toPath(), REPLACE_EXISTING, NOFOLLOW_LINKS);
+			} catch (IOException e) {
+				System.out.println("Invalid path.");
+			}
+		} else {
+			destinationFile = new File(destination);
+			if (!destinationFile.isDirectory()){
+				System.out.println(destination + "\n" + destinationFile.getAbsolutePath() + "\ninvalid Destination path");
+				return;
+			}
+			for (int i = 0; i + 1 < args.size(); i++) {
+				File file = new File(args.get(i));
+				int idx = args.get(i).indexOf("/");
+				if (idx == -1) {
+					file =  new File(System.getProperty("user.dir") + '/' + args.get(i));
+				}
+				if (!file.exists()){
+					System.out.println("path number " + (i + 1) + " does not exist");
+					continue;
+				}
+				mv(file.getAbsolutePath(), destinationFile.getAbsolutePath());
+				
+			}
+		}
+
+	}
+
 	
 	public static void main(String[] args) {
 		
