@@ -77,18 +77,44 @@ public class CLI {
 		}
 		else
 		{
-			System.out.println("Invalid Directory");
+			System.out.println("There is no such directory.");
 		}
 	}
 	
-	private static void cp (){
+	private static void mv ( String source , String destination ){
+		File sourcePath = new File(source);
+		File destinationPath = new File(destination);
 		
-		
+		if ( sourcePath.exists() && destinationPath.isDirectory() )
+		{
+			if ( destination.charAt(destination.length()-1) == '/' )
+			{
+				sourcePath.renameTo( new File( destination + sourcePath.getName() ) );	
+			}
+			else
+			{
+				sourcePath.renameTo( new File( destination + "/" + sourcePath.getName() ) );
+			}
+		}
+		else if ( sourcePath.exists() && !destinationPath.exists() ) // Changing Names
+		{
+			if ( sourcePath.getParentFile() == destinationPath.getParentFile() ||
+				 sourcePath.getParentFile().equals(destinationPath.getParentFile()) )
+			{
+				sourcePath.renameTo(destinationPath);
+			}
+			else
+			{
+				System.out.println("There is no such directory.");
+			}
+		}
+		else
+		{
+			System.out.println("There is no such directory.");
+		}
+
 	}
 	
-	
-	
-
 	public static void main(String[] args) {
 		
 
