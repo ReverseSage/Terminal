@@ -10,6 +10,7 @@ public class CLI {
 	 */
 	private static String[] validCommands = { "pwd", "ls", "cd", "cp", "mv", "rm", "rmdir", "mkdir", "cat", "more",
 			"date", "clear", "help", "args" };
+	private static final String defaultDirectory = System.getProperty("user.dir");
 
 	private static String[] Description = { // to be edit - not important
 											// anyway!
@@ -72,6 +73,7 @@ public class CLI {
 	}
 
 	public static void main(String[] args) {
+		System.out.println(defaultDirectory);
 		pwd();
 		cd("E:/");
 		pwd();
