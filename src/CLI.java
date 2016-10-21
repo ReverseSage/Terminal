@@ -79,49 +79,102 @@ public class CLI {
 
 	private static void cd (String path) {
 		// default directory will be sent as parameter if cd only entered bye the user, to be checked in main.
-
-		if ( new File(path).isDirectory() )
+		if ( path == ".." )
 		{
-			System.setProperty("user.dir", path);
+			System.setProperty("user.dir", new File(System.getProperty("user.dir")).getParent());	
 		}
 		else
 		{
-			System.out.println("There is no such directory.");
+			if ( new File(path).isDirectory() )
+		    {
+				System.setProperty("user.dir", path);
+		    }
+		    else
+		    {
+		    	System.out.println("There is no such directory.");
+		    }
 		}
 	}
 	
-	private static void mv ( String source , String destination ){
-		File sourcePath = new File(source);
-		File destinationPath = new File(destination);
-		
-		if ( sourcePath.exists() && destinationPath.isDirectory() )
+	private static void mv ( ArrayList <String> args ){
+		String source, destination;
+		if ( args.size() < 2 )
 		{
-			if ( destination.charAt(destination.length()-1) == '/' )
-			{
-				sourcePath.renameTo( new File( destination + sourcePath.getName() ) );	
-			}
-			else
-			{
-				sourcePath.renameTo( new File( destination + "/" + sourcePath.getName() ) );
-			}
+			System.out.println("Error: few nubmer of arguments");
+			return;
 		}
-		else if ( sourcePath.exists() && !destinationPath.exists() ) // Changing Names
+		else if ( args.size() == 2 )
 		{
-			if ( sourcePath.getParentFile() == destinationPath.getParentFile() ||
-				 sourcePath.getParentFile().equals(destinationPath.getParentFile()) )
+			source = args.get(0);
+			destination = args.get(1);
+			File sourcePath = new File(source);
+			File destinationPath = new File(destination);
+
+			if (sourcePath.exists() && destinationPath.isDirectory()) 
 			{
-				sourcePath.renameTo(destinationPath);
-			}
-			else
+				if (destination.charAt(destination.length() - 1) == '/') 
+				{
+					sourcePath.renameTo(new File(destination + sourcePath.getName()));
+				} 
+				else 
+				{
+					sourcePath.renameTo(new File(destination + "/" + sourcePath.getName()));
+				}
+			} 
+			else if (sourcePath.exists() && !destinationPath.exists()) // Changing name															// Names
+			{
+				if (sourcePath.getParentFile() == destinationPath.getParentFile() ||
+				    sourcePath.getParentFile().equals(destinationPath.getParentFile())) 
+				{
+					sourcePath.renameTo(destinationPath);
+				} 
+				else 
+				{
+					System.out.println("There is no such directory.");
+				}
+			} 
+			else 
 			{
 				System.out.println("There is no such directory.");
 			}
 		}
 		else
 		{
-			System.out.println("There is no such directory.");
+			ArrayList <String> notFound = new ArrayList <String> ();
+			ArrayList <String> found = null;
+			destination = args.get(args.size()-1);
+			if ( new File(destination).isDirectory() )
+			{
+				for ( int i = 0 ; i < args.size()-1 ; i++ )
+				{
+					found = new ArrayList <String> (2); found.add(args.get(i)); found.add(destination);
+					if ( new File(args.get(i)).exists() )
+					{
+						mv(found);
+					}
+					else
+					{
+						notFound.add(args.get(i));
+					}
+				}
+				
+				if ( notFound.size() == 0 )
+				{
+					System.out.println("All files were successfully moved to " + destination );
+				}
+				else
+				{
+					System.out.print("cannot stat ");
+					for ( int i = 0 ; i < notFound.size() ; i++ ) System.out.print(" '"+notFound.get(i)+"' ");
+					System.out.println(": No such file or directory");
+				}
+			}
+			else
+			{
+				System.out.println(destination+" : no such directory");
+			}
+			
 		}
-
 	}
 	private static void cp(ArrayList<String> args) {
 		if (args.size() < 2) {
