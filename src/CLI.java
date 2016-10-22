@@ -80,12 +80,12 @@ public class CLI {
 
 	private static void cd (String path) {
 		// If the command is "cd" only or "cd ~" make the default directory the current on
-		if ( path == null || path == "~" ) 
+		if ( path == null || path.equals("~") ) 
 		{
 			System.setProperty("user.dir", defaultDirectory );
 		}
 		// If the command is "cd .." make the parent directory the current one
-		else if ( path == ".." )
+		else if ( path.equals("..") )
 		{
 			if ( new File(System.getProperty("user.dir")).getParent() != null )
 			{
@@ -93,7 +93,7 @@ public class CLI {
 			}
 		}
 		// If the command is "cd /" make the root directory of the default the current one
-		else if ( path == "/" )
+		else if ( path.equals("/") )
 		{
 			cd(null);
 			while ( new File(System.getProperty("user.dir")).getParent() != null )
@@ -123,7 +123,7 @@ public class CLI {
 		    }
 		}
 	}
-	
+		
 	private static void mv ( ArrayList <String> args )
 	{
 		// Edit paths format to the current directory if it exist in it
@@ -163,13 +163,34 @@ public class CLI {
 
 			if ( sourcePath.exists() && destinationPath.isDirectory() ) 
 			{
-				if (destination.charAt(destination.length() - 1) == '/') 
+				if ( destination.charAt(destination.length()-1) != '/' )
+				{
+					destination += "/";
+				}
+				// Check if there is a file with the same name in the destination directory
+				if ( new File(destination + sourcePath.getName()).exists() )
+				{
+					String choice;
+					do {
+						System.out.print("mv : Overwrite " + destination + sourcePath.getName() + " (Yes/No) : " );
+						choice = cin.next();
+					} while ( !choice.equals("Yes") && !choice.equals("No") );
+					
+					if ( choice.equals("Yes") )
+					{
+						new File(destination + sourcePath.getName()).delete();
+						sourcePath.renameTo(new File(destination + sourcePath.getName()));
+						System.out.println("mv : " + source + " is moved successfully to " + destination );
+					}
+					else
+					{
+						System.out.println("mv : moving "+ source + " to " + destination + " is canceled" );
+					}
+				}
+				else
 				{
 					sourcePath.renameTo(new File(destination + sourcePath.getName()));
-				} 
-				else 
-				{
-					sourcePath.renameTo(new File(destination + "/" + sourcePath.getName()));
+					System.out.println("mv : " + source + " is moved successfully to " + destination );
 				}
 			} 
 			else if ( sourcePath.exists() && !destinationPath.exists() )														
@@ -213,11 +234,7 @@ public class CLI {
 					}
 				}
 				
-				if ( unavailablePaths.size() == 0 )
-				{
-					System.out.println("mv : all files were successfully moved to " + destination );
-				}
-				else
+				if ( unavailablePaths.size() != 0 )
 				{
 					System.out.print("mv : cannot state ");
 					for ( int i = 0 ; i < unavailablePaths.size() ; i++ )
