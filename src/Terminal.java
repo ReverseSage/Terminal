@@ -7,7 +7,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Scanner;
-
+import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 
 @SuppressWarnings("unused")
@@ -277,7 +278,6 @@ public class Terminal {
 						return;
 					}
 				}
-				// Error in the next line needs to be solved ( check it seif )
 				Files.copy(sourceFile.toPath(), destinationFile.toPath(), REPLACE_EXISTING, NOFOLLOW_LINKS);
 			} catch (IOException e) {
 				System.out.println("Invalid path.");
