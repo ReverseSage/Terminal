@@ -78,11 +78,29 @@ public class CLI {
 	}
 
 	private static void cd (String path) {
-		// default directory will be sent as parameter if cd only entered bye the user, to be checked in main.
-		if ( path == ".." )
+		// If the command is "cd" only or "cd ~" make the default directory the current on
+		if ( path == null || path == "~" ) 
 		{
-			System.setProperty("user.dir", new File(System.getProperty("user.dir")).getParent());	
+			System.setProperty("user.dir", defaultDirectory );
 		}
+		// If the command is "cd .." make the parent directory the current one
+		else if ( path == ".." )
+		{
+			if ( new File(System.getProperty("user.dir")).getParent() != null )
+			{
+				System.setProperty("user.dir", new File(System.getProperty("user.dir")).getParent());	
+			}
+		}
+		// If the command is "cd /" make the root directory of the default the current one
+		else if ( path == "/" )
+		{
+			cd(null);
+			while ( new File(System.getProperty("user.dir")).getParent() != null )
+			{
+				System.setProperty("user.dir", new File(System.getProperty("user.dir")).getParent());	
+			}
+		}
+		// if the command is "cd /with/specific/path" 
 		else
 		{
 			if ( new File(path).isDirectory() )
@@ -91,26 +109,58 @@ public class CLI {
 		    }
 		    else
 		    {
-		    	System.out.println("There is no such directory.");
+		    	if ( path.charAt(0) != '/' ) path = "/" + path;
+		    	// if the path is for directory inside the current directory
+		    	if ( new File ( System.getProperty("user.dir") + path ).isDirectory() )
+		    	{
+		    		System.setProperty( "user.dir" , System.getProperty("user.dir") + path );	
+		    	}
+		    	else
+		    	{
+		    		System.out.println("cd : cannot state " + path + " : no such file or directory" );
+		    	}
 		    }
 		}
 	}
 	
-	private static void mv ( ArrayList <String> args ){
+	private static void mv ( ArrayList <String> args )
+	{
+		// Edit paths format to the current directory if it exist in it
+		String path;
+		for ( int i = 0 ; i < args.size(); i++ )
+		{
+			if ( args.get(i).charAt(0) != '/' )
+			{
+				path =  "/" + args.get(i);
+			}
+			else
+			{
+				path = args.get(i);
+			}
+			if ( new File( System.getProperty("user.dir") + path ).exists() ||
+				new File( defaultDirectory + path ).exists()  || 					
+				new File( System.getProperty("user.dir") + path ).getParentFile() == null ||
+				new File( System.getProperty("user.dir") + path ).getParentFile().exists() )
+			{
+					args.set( i , System.getProperty("user.dir") + path );
+			}
+			
+		}
+		// Start to move each files or directory if exists
 		String source, destination;
 		if ( args.size() < 2 )
 		{
-			System.out.println("Error: few nubmer of arguments");
+			System.out.println("mv : few nubmer of arguments");
 			return;
 		}
 		else if ( args.size() == 2 )
 		{
 			source = args.get(0);
-			destination = args.get(1);
-			File sourcePath = new File(source);
-			File destinationPath = new File(destination);
+			destination = args.get(1); 
+			
+			File sourcePath = new File(source), destinationPath = new File(destination);
 
-			if (sourcePath.exists() && destinationPath.isDirectory()) 
+			if ( sourcePath.exists() && destinationPath.isDirectory() ) 
 			{
 				if (destination.charAt(destination.length() - 1) == '/') 
 				{
@@ -121,59 +171,65 @@ public class CLI {
 					sourcePath.renameTo(new File(destination + "/" + sourcePath.getName()));
 				}
 			} 
-			else if (sourcePath.exists() && !destinationPath.exists()) // Changing name															// Names
+			else if ( sourcePath.exists() && !destinationPath.exists() )														
 			{
-				if (sourcePath.getParentFile() == destinationPath.getParentFile() ||
-				    sourcePath.getParentFile().equals(destinationPath.getParentFile())) 
+				// Change the names of the file
+				if ( sourcePath.getParentFile().equals( destinationPath.getParentFile() ) ) 
 				{
 					sourcePath.renameTo(destinationPath);
-				} 
-				else 
+					System.out.print( "mv : File " + sourcePath.getName() );
+					System.out.println( " is renamed successfully to " + destinationPath.getName());
+				}
+				else
 				{
-					System.out.println("There is no such directory.");
+					System.out.println("mv : cannot state " + destination + " : no such file or directory");
 				}
 			} 
 			else 
 			{
-				System.out.println("There is no such directory.");
+				System.out.println("mv : cannot state " + source + " : no such file or directory");
 			}
 		}
 		else
 		{
-			ArrayList <String> notFound = new ArrayList <String> ();
-			ArrayList <String> found = null;
+			ArrayList <String> unavailablePaths = new ArrayList <String> ();
+			ArrayList <String> parameters = null;
 			destination = args.get(args.size()-1);
 			if ( new File(destination).isDirectory() )
 			{
 				for ( int i = 0 ; i < args.size()-1 ; i++ )
 				{
-					found = new ArrayList <String> (2); found.add(args.get(i)); found.add(destination);
+					parameters = new ArrayList <String> (2); 
+					parameters.add(args.get(i)); 
+					parameters.add(destination);
 					if ( new File(args.get(i)).exists() )
 					{
-						mv(found);
+						mv(parameters);
 					}
 					else
 					{
-						notFound.add(args.get(i));
+						unavailablePaths.add(args.get(i));
 					}
 				}
 				
-				if ( notFound.size() == 0 )
+				if ( unavailablePaths.size() == 0 )
 				{
-					System.out.println("All files were successfully moved to " + destination );
+					System.out.println("mv : all files were successfully moved to " + destination );
 				}
 				else
 				{
-					System.out.print("cannot stat ");
-					for ( int i = 0 ; i < notFound.size() ; i++ ) System.out.print(" '"+notFound.get(i)+"' ");
-					System.out.println(": No such file or directory");
+					System.out.print("mv : cannot state ");
+					for ( int i = 0 ; i < unavailablePaths.size() ; i++ )
+					{
+						System.out.print(" '"+unavailablePaths.get(i)+"' ");
+					}
+					System.out.println(": no such file or directory");
 				}
 			}
 			else
 			{
-				System.out.println(destination+" : no such directory");
+				System.out.println("mv : cannot state " + destination + " : no such file or directory" );
 			}
-			
 		}
 	}
 	private static void cp(ArrayList<String> args) {
