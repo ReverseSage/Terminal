@@ -307,8 +307,20 @@ public class Terminal {
 		}
 
 	}
-	public void mkdir( String filePath){ 
-		File f = new File(filePath);
+	public void mkdir( String filePath , String name){ 
+		File f;
+		if(filePath.isEmpty()){
+			 f = new File(System.getProperty("user.dir")+name);
+		}
+		else{
+			 f = new File(filePath + name);
+		}
+		if(f.mkdir())System.out.println("Directory created successfully !");
+		else System.err.println("Couldn't create directory");
+	}
+
+	public void mkdir( String name){ 
+		File  f = new File(System.getProperty("user.dir")+name);
 		if(f.mkdir())System.out.println("Directory created successfully !");
 		else System.err.println("Couldn't create directory");
 	}
