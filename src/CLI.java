@@ -3,6 +3,7 @@ import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.text.DateFormat;
@@ -282,11 +283,58 @@ public class CLI {
 					System.out.println("path number " + (i + 1) + " does not exist");
 					continue;
 				}
-				mv(file.getAbsolutePath(), destinationFile.getAbsolutePath());
+				ArrayList<String> arr = new ArrayList<String>();
+				arr.add(file.getAbsolutePath());
+				arr.add(destinationFile.getAbsolutePath());
+				mv(arr);
 				
 			}
 		}
 
+	}
+	public void mkdir( String filePath){ 
+		File f = new File(filePath);
+		if(f.mkdir())System.out.println("Directory created successfully !");
+		else System.err.println("Couldn't create directory");
+	}
+	
+	public void rmdir(String filePath){ 
+		File f = new File(filePath);
+		if(f.isDirectory()){
+			if(f.delete())System.out.println("Directory was removed successfull !");
+			else System.err.println("Couldn't remove directory");
+		}
+		else  System.err.println("Error. Wrong directory path");
+	}
+	
+	public void rm(String filePath){	
+		File f = new File(filePath);
+		if(f.isFile()){
+			if(f.delete())System.out.println("File was removed succesfully !");
+			else System.err.println("Couldn't remove file");
+		}
+		else System.err.println("Error. Wrong file path");
+	}
+
+	public void cat(String ...filePaths){
+		
+		for(String s : filePaths){
+			File f = new File(s);
+			if(!f.isFile()){
+				System.err.println("cat: "+ s +": No such file found");
+				continue;
+			}
+			
+			try {
+				Scanner in = new Scanner(f);
+				while(in.hasNextLine())System.out.println(in.nextLine());
+				in.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
 	}
 
 	
