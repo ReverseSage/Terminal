@@ -352,14 +352,22 @@ public class CLI {
 		    }
 		}
 	}
-	private static void mkdir( String filePath){ 
-		File f = new File(filePath);
+	private static void mkdir( String filePath){
+		File f;
+		if(filePath.contains("/"))f= new File(filePath);
+		else{
+			f = new File(System.getProperty("user.dir")+"/"+filePath);
+			System.out.println(System.getProperty("user.dir"));
+		}
 		if(f.mkdir())System.out.println("Directory created successfully !");
 		else System.err.println("Couldn't create directory");
 	}
  
 	private static void rmdir(String filePath){ 
-		File f = new File(filePath);
+		File f;
+	
+		if(filePath.contains("/"))f= new File(filePath);
+		else f = new File(System.getProperty("user.dir")+"/"+filePath);
 		if(f.isDirectory()){
 			if(f.delete())System.out.println("Directory was removed successfull !");
 			else System.err.println("Couldn't remove directory");
@@ -368,7 +376,9 @@ public class CLI {
 	}
  
 	private static void rm(String filePath){	
-		File f = new File(filePath);
+		File f;
+		if(filePath.contains("/"))f= new File(filePath);
+		else f = new File(System.getProperty("user.dir")+"/"+filePath);
 		if(f.isFile()){
 			if(f.delete())System.out.println("File was removed succesfully !");
 			else System.err.println("Couldn't remove file");
@@ -379,7 +389,9 @@ public class CLI {
 	private static void cat(String ...filePaths){
  
 		for(String s : filePaths){
-			File f = new File(s);
+			File f;
+			if(s.contains("/"))f= new File(s);
+			else f = new File(System.getProperty("user.dir")+"/"+s);
 			if(!f.isFile()){
 				System.err.println("cat: "+ s +": No such file found");
 				continue;
